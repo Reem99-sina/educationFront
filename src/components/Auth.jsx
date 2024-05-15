@@ -16,12 +16,7 @@ function Auth({ children }) {
     return JSON?.parse(sessionStorage?.getItem("activeUser"))
    },[sessionStorage?.getItem("activeUser")]);
 
-  useEffect(()=>{
-    if(user?.role != "student"){
-        toast.error("student can enter home page not teacher")
-    }
-    
-  },[user?.role])
+
   useEffect(()=>{
     getActive()
     .then(({data})=>{sessionStorage.setItem("activeUser",JSON.stringify(data?.user));Cookies.set("token",data?.token)})

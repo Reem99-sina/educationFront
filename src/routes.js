@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import LogoutIcon from '@mui/icons-material/Logout';
 import {useNavigate} from "react-router-dom"
 import Cookies from 'js-cookie';
+import { removeActive } from "./action/removeActive";
 
 export const useRoutes =()=>{
     const navigate=useNavigate()
@@ -41,6 +42,8 @@ export const useRoutes =()=>{
        
         Cookies.remove("token")
         sessionStorage.removeItem("user")
+        sessionStorage.removeItem("activeUser")
+        removeActive()
         navigate("/sign-in")
     },
   },

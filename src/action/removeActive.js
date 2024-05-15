@@ -5,6 +5,6 @@ import toast from "react-hot-toast";
 
 const token = Cookies.get("token");
 const BaseUrl = config.BASEURL;
-export const getActive=async()=>{
-return await axios.get(`${BaseUrl}/api/v1/user/getactiveUser`)
+export const removeActive=async()=>{
+return await axios.patch(`${BaseUrl}/api/v1/user/patchactiveUser`)
 }

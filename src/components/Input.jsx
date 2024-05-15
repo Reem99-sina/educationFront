@@ -22,7 +22,7 @@ function InputCustom({ value, setValue, name,type="text" ,sx,helperText,error}) 
           sx={{
             backgroundColor: "black",
             borderRadius: "8px",
-
+            minWidth:"100%",
             border: "2px solid gray !important",
 
             "& .MuiInputBase-input": {

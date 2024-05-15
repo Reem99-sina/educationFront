@@ -99,7 +99,7 @@ function Courses() {
           <Typography sx={{ textTransform: "capitalize", fontSize: "14px" }}>
             {ele?.description}
           </Typography>
-          <Button
+          {user?.role=="student"&&<Button
             sx={{ color: (theme) => theme.palette.primary.main }}
             onClick={() => patchCursesPrefer(ele)}
             disabled={ispending}
@@ -109,7 +109,8 @@ function Courses() {
             ) : (
               <FavoriteBorderIcon />
             )}
-          </Button>
+          </Button>}
+          
         </Box>
       ))}
       {courses?.length == 0 && (

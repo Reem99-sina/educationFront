@@ -62,7 +62,7 @@ function Register() {
       });
     if (Boolean(resultValidation)) {
       await axios
-        .post(`http://localhost:12400/api/v1/user/register`, user)
+        .post(`${BaseUrl}/api/v1/user/register`, user)
         .then((result) => {
           navigate("/sign-in");
         })
@@ -88,7 +88,7 @@ function Register() {
           sm: "column-reverse",
           xs: "column-reverse",
         },
-        height: { lg: "100vh", md: "100vh", sm: "100%", xs: "100%" },
+        height: { lg: "100%", md: "100%", sm: "100%", xs: "100%" },
       }}
     >
       <Box

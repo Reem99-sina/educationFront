@@ -72,7 +72,7 @@ function Login() {
       setPending(true);
     if (Boolean(resultValidation)) {
       await axios
-        .post(`http://localhost:12400/api/v1/user/login`, user)
+        .post(`${BaseUrl}/api/v1/user/login`, user)
         .then((result) => {
           Cookies.set("token",result.data.token)
           sessionStorage.setItem("user", JSON.stringify(result.data.user));
