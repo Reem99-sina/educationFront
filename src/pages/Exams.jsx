@@ -42,7 +42,7 @@ function Exams() {
         margin: "1rem",
       }}
     >
-      {exams.map((ele) => (
+      {exams?.map((ele) => (
         <Box key={ele?.title} sx={{ display: "flex", flexDirection: "column" }}>
           <Typography sx={{ fontWeight: "bold", textTransform: "capitalize" }}>
             {ele?.title}

@@ -17,6 +17,7 @@ import toast, { Toaster } from "react-hot-toast";
 import useRequest from "../hooks/useRequest";
 import axios from "axios";
 import config from "../config"
+import AutorenewIcon from '@mui/icons-material/Autorenew';
 const validationSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string()
@@ -40,6 +41,7 @@ function Login() {
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    setPending(true);
     const resultValidation = await validationSchema
       .validate(user, { abortEarly: false })
       .then((res) => res)
@@ -49,6 +51,7 @@ function Login() {
       .finally(() => {
         setPending(false);
       });
+      setPending(true);
     if (Boolean(resultValidation)) {
       await axios
         .post(`${BaseUrl}/api/v1/user/login`, user)
@@ -56,12 +59,12 @@ function Login() {
             Cookies.set("token",result.data.token)
         //   Cookies.set("token", token);
           sessionStorage.setItem("user", JSON.stringify(result.data.user));
+          setPending(false);
+
           navigate("/profile",{user:result.data.user})
         })
         .catch((error) => error?.response?.data?.validateArr?.map((ele)=>toast.error(ele?.message))||toast.error(error?.response?.data?.message))
-        .finally(() => {
-          setPending(false);
-        });
+       
     }
   };
   return (
@@ -143,8 +146,10 @@ function Login() {
             name={"password"}
             type={"password"}
           />
-          <Button variant="contained" onClick={onSubmit} disabled={ispending}>
-            Login
+           
+          
+          <Button variant="contained" onClick={onSubmit} >
+          {Boolean(ispending)?<AutorenewIcon />:"Login"}
           </Button>
         </Box>
 
