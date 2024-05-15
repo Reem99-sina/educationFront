@@ -1,11 +1,11 @@
 import { useMemo, useEffect, useState } from "react";
 import { Box, Typography, Button, Modal } from "@mui/material";
-
-import GppMaybeIcon from "@mui/icons-material/GppMaybe";
+import LoopIcon from "@mui/icons-material/Loop";
 import axios from "axios";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import config from "../config";
+import AutorenewIcon from "@mui/icons-material/Autorenew";
 
 function Exams() {
   const token = Cookies.get("token");
@@ -14,7 +14,10 @@ function Exams() {
   const BaseUrl = config.BASEURL;
 
   const user = useMemo(() => {
-    return JSON.parse(sessionStorage.getItem("user"));
+    return (
+      JSON.parse(sessionStorage.getItem("user")) ||
+      JSON.parse(sessionStorage.getItem("activeUser"))
+    );
   }, [sessionStorage.getItem("user")]);
   const exams = useMemo(() => {
     return newExams ? newExams : user?.exams;
@@ -102,7 +105,7 @@ function Exams() {
           </Modal>
         </Box>
       ))}
-      {exams.length == 0 && (
+      {!Boolean(exams)||exams?.length==0 && (
         <Box
           sx={{
             display: "flex",
@@ -110,8 +113,19 @@ function Exams() {
             justifyContent: "center",
           }}
         >
-          <GppMaybeIcon />
-          <Typography>no exams yet added</Typography>
+          <LoopIcon
+            sx={{
+              animation: "spin 2s linear infinite",
+              "@keyframes spin": {
+                "0%": {
+                  transform: "rotate(360deg)",
+                },
+                "100%": {
+                  transform: "rotate(0deg)",
+                },
+              },
+            }}
+          />
         </Box>
       )}
     </Box>

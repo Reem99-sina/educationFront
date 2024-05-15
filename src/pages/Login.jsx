@@ -1,14 +1,16 @@
 import {
   Box,
   Button,
+  Checkbox,
   Container,
+  FormControlLabel,
   Input,
   TextField,
   Typography,
 } from "@mui/material";
 import imageLogin from "../assets/studenlogo.png";
 import student from "../assets/student.png";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import InputCustom from "../components/Input";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
@@ -18,35 +20,51 @@ import useRequest from "../hooks/useRequest";
 import axios from "axios";
 import config from "../config"
 import AutorenewIcon from '@mui/icons-material/Autorenew';
+import { addActive } from "../action/addActive";
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Required"),
-  password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Required"),
+  email: Yup.string()
+  .email({ email: "Invalid email" })
+  .required({ email: "Required" }),
+password: Yup.string()
+  .required()
+  .matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    "Password must be at least 8 characters and has uppercase letter and lowercase letter and special character"
+  ),
 });
 function Login() {
   const navigate = useNavigate();
+  let [error, setError] = useState();
+
   let [ispending, setPending] = useState(false);
   let [user, setUser] = useState({
     email: "",
     password: "",
+    active:false
   });
   const BaseUrl = config.BASEURL;
 
   const token = useMemo(() => {
-    let getCookies = document.cookie.split("; ");
-    return getCookies.find((row) => row.startsWith("token="))?.split("=")[1];
-  }, [document.cookie]);
-  
+    
+    return Cookies.get("token")
+  }, [Cookies.get("token")]);
+
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setPending(true);
     const resultValidation = await validationSchema
       .validate(user, { abortEarly: false })
-      .then((res) => res)
+      .then((res) => {
+        setError({})
+       return res
+      })
       .catch(({ errors }) => {
-        errors?.map((ele) => toast?.error(ele));
+        errors?.map((ele) =>
+          typeof ele == "string"
+            ? setError((pref) => ({  ...pref,"password": ele }))
+            : setError((pref) => ({  ...pref,...ele }))
+        );
       })
       .finally(() => {
         setPending(false);
@@ -54,19 +72,22 @@ function Login() {
       setPending(true);
     if (Boolean(resultValidation)) {
       await axios
-        .post(`${BaseUrl}/api/v1/user/login`, user)
+        .post(`http://localhost:12400/api/v1/user/login`, user)
         .then((result) => {
-            Cookies.set("token",result.data.token)
-        //   Cookies.set("token", token);
+          Cookies.set("token",result.data.token)
           sessionStorage.setItem("user", JSON.stringify(result.data.user));
           setPending(false);
 
           navigate("/profile",{user:result.data.user})
         })
-        .catch((error) => error?.response?.data?.validateArr?.map((ele)=>toast.error(ele?.message))||toast.error(error?.response?.data?.message))
+        .catch((error) =>
+          error?.response?.data?.validateArr?.map((ele) =>
+            toast.error(ele?.message)
+          ) || setError( error?.response?.data)).finally(()=>setPending(false))
        
     }
   };
+
   return (
     <Box
       sx={{
@@ -139,15 +160,19 @@ function Login() {
             setValue={setUser}
             name={"email"}
             type="email"
+            error={Boolean(error?.email)}
+            helperText={error?.email}
           />
           <InputCustom
             value={user.password}
             setValue={setUser}
             name={"password"}
             type={"password"}
+            error={Boolean(error?.password)}
+            helperText={error?.password}
           />
            
-          
+           <FormControlLabel control={<Checkbox  checked={user.active} onChange={(e)=>setUser({...user,active:e.target.checked})}/>} label="Remember me" />
           <Button variant="contained" onClick={onSubmit} >
           {Boolean(ispending)?<AutorenewIcon />:"Login"}
           </Button>

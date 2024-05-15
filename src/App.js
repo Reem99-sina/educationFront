@@ -48,7 +48,7 @@ function App() {
             /> */}
           </Routes>
         </BrowserRouter>
-        <Toaster />
+        {/* <Toaster /> */}
       </ThemeProvider>
     </>
   );

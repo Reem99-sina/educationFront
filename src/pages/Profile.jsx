@@ -13,8 +13,8 @@ function Profile() {
   let [teacher, setTeacher] = useState();
   const BaseUrl = config.BASEURL;
   const user = useMemo(() => {
-    return JSON.parse(sessionStorage.getItem("user"));
-  }, [sessionStorage.getItem("user")]);
+    return JSON.parse(sessionStorage.getItem("user"))||JSON.parse(sessionStorage.getItem("activeUser"));
+  }, [sessionStorage.getItem("user"),sessionStorage.getItem("activeUser")]);
   async function getTeacher() {
     await axios
       .get(`${BaseUrl}/api/v1/user/getAllTeacher`)
@@ -58,6 +58,12 @@ function Profile() {
           </Typography>
           <Typography sx={{ textTransform: "capitalize", fontSize: "14px" }}>
             Always stay updated in your student portal
+          </Typography>
+          <Typography sx={{ textTransform: "capitalize", fontSize: "14px" }}>
+            {user?.email}
+          </Typography>
+          <Typography sx={{ textTransform: "capitalize", fontSize: "14px" }}>
+            {user?.role}
           </Typography>
         </Box>
       </Box>

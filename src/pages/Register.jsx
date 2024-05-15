@@ -5,6 +5,7 @@ import {
   FormControlLabel,
   Radio,
   RadioGroup,
+  TextField,
   Typography,
 } from "@mui/material";
 import imageLogin from "../assets/studenlogo.png";
@@ -17,14 +18,17 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import config from "../config";
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Required"),
+  email: Yup.string()
+    .email({ email: "Invalid email" })
+    .required({ email: "Required" }),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Required"),
-  userName: Yup.string()
-    .required("Required")
-    .min(4),
-  role: Yup.string(),
+    .required()
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must be at least 8 characters and has uppercase letter and lowercase letter and special character"
+    ),
+  userName: Yup.string().required({ userName: "Required" }),
+  role: Yup.string({ role: "role should be one of teacher or student" }),
 });
 function Register() {
   const navigate = useNavigate();
@@ -33,33 +37,47 @@ function Register() {
     email: "",
     password: "",
     userName: "",
-    role: "",
+    role: "student",
   });
+  let [error, setError] = useState();
   const BaseUrl = config.BASEURL;
 
   const onSubmit = async () => {
     const resultValidation = await validationSchema
       .validate(user, { abortEarly: false })
-      .then((res) => res)
+      .then((res) => {
+        setError({})
+       return res
+      })
       .catch(({ errors }) => {
-        errors?.map((ele) => toast?.error(ele));
+        
+        errors?.map((ele) =>
+          typeof ele == "string"
+            ? setError((pref) => ({  ...pref,"password": ele }))
+            : setError((pref) => ({  ...pref,...ele }))
+        );
       })
       .finally(() => {
         setPending(false);
       });
     if (Boolean(resultValidation)) {
       await axios
-        .post(`${BaseUrl}/api/v1/user/register`, user)
+        .post(`http://localhost:12400/api/v1/user/register`, user)
         .then((result) => {
-          
-          navigate("/sign-in")
+          navigate("/sign-in");
         })
-        .catch((error) => error?.response?.data?.validateArr?.map((ele)=>toast.error(ele?.message))||toast.error(error?.message))
+        .catch(
+          (error) =>
+            error?.response?.data?.validateArr?.map((ele) =>
+              toast.error(ele?.message)
+            ) || setError( error?.response?.data)
+        )
         .finally(() => {
           setPending(false);
         });
     }
   };
+
   return (
     <Box
       sx={{
@@ -120,7 +138,7 @@ function Register() {
           paddingY: { lg: "unset", md: "unset", sm: "2rem", xs: "2rem" },
         }}
       >
-        <Box sx={{ padding: "2rem" }}>
+        <Box sx={{ padding: "2rem",marginX:"auto" }}>
           <Typography variant="h3" sx={{ fontSize: "2rem" }}>
             Register
           </Typography>
@@ -132,38 +150,44 @@ function Register() {
             setValue={setUser}
             name={"email"}
             type="email"
+            error={Boolean(error?.email)}
+            helperText={error?.email}
           />
           <InputCustom
             value={user.password}
             setValue={setUser}
             name={"password"}
             type={"password"}
+            error={Boolean(error?.password)}
+            helperText={error?.password}
           />
           <InputCustom
             value={user.userName}
             setValue={setUser}
             name={"userName"}
             type={"userName"}
+            error={Boolean(error?.userName)}
+            helperText={error?.userName}
           />
-            <Typography sx={{ fontWeight: "bold", textTransform: "capitalize" }}>
-          role
-        </Typography>
+          <Typography sx={{ fontWeight: "bold", textTransform: "capitalize" }} >
+            role
+          </Typography>
+          <TextField sx={{width:"0px",height:"0px"}} helperText={error?.role}error={Boolean(error?.role)}disabled={true}/>
           <RadioGroup
-           
             defaultValue="teacher"
-            
             value={user.role}
-            onChange={(e)=>{setUser((pre)=>({...pre,role:e.target.value}));}}
+            onChange={(e) => {
+              setUser((pre) => ({ ...pre, role: e.target.value }));
+            }}
           >
-
             <FormControlLabel
               value="teacher"
-              control={<Radio sx={{color:"white"}}/>}
+              control={<Radio sx={{ color: "white" }} />}
               label="Teacher"
             />
             <FormControlLabel
               value="student"
-              control={<Radio sx={{color:"white"}}/>}
+              control={<Radio sx={{ color: "white" }} />}
               label="Student"
             />
           </RadioGroup>
