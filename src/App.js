@@ -1,24 +1,56 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { Route, Routes, BrowserRouter } from "react-router-dom";
+import Auth from "./components/Auth";
+import { Slider, ThemeProvider } from "@mui/material";
+import theme from "./theme";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import { Toaster } from "react-hot-toast";
+import Home from "./pages/Home";
+import Profile from "./pages/Profile";
+import Exams from "./pages/Exams";
+import Courses from "./pages/Courses";
 
+import SlideBar from "./components/SlideBar";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <ThemeProvider theme={theme}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/sign-in" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route
+              path="/"
+              element={
+                <Auth>
+                  <SlideBar>
+                    <Home />
+                      
+                    
+                  </SlideBar>
+                </Auth>
+              }
+            >
+              <Route path="profile" element={<Profile />} />
+              <Route path="exams" element={<Exams />} />
+              <Route path="courses" element={<Courses />} />
+            </Route>
+
+            {/* <Route path="/sign-up" element={<Register />} />
+            <Route
+              path="/home"
+              element={
+                <Auth>
+                  <Home />
+                </Auth>
+              }
+            /> */}
+          </Routes>
+        </BrowserRouter>
+        <Toaster />
+      </ThemeProvider>
+    </>
   );
 }
 
